@@ -34,10 +34,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Progress } from "@/components/ui/progress"
+import useAuth from "@/utils/middleware";
 
 export default function MedicalDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const loading = useAuth(["doctor"]); // Only doctor can access
+
+  if (loading) return <p>Loading...</p> ;
   return (
     <div className="flex h-screen bg-background">
       {/* Mobile sidebar backdrop */}

@@ -29,8 +29,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import useAuth from "@/utils/middleware";
 
 export default function PatientDashboard() {
+  const {user, loading} = useAuth(["patient"]); // Only patient can access
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [date, setDate] = useState<Date>()
   const [waterIntake, setWaterIntake] = useState(0)
@@ -66,6 +68,8 @@ export default function PatientDashboard() {
     }
   }
 
+  if (loading) return <p>Loading...</p>
+  
   return (
     <div className="flex h-screen bg-background">
       {/* Mobile sidebar backdrop */}

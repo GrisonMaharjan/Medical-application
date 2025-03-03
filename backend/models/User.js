@@ -16,7 +16,12 @@ const UserSchema = new mongoose.Schema({
   emergencyContactName: { type: String, required: true },
   emergencyContactNumber: { type: String, required: true },
   password: { type: String, required: true },
-  // role: { type: String, required: true, enum: ["patient", "doctor", "admin"] }, // Ensure role is required
+  role: { 
+    type: String, 
+    required: true, 
+    enum: ["patient", "doctor", "admin"], 
+    default: "patient" // Default role is patient
+  },  
   agreeTos: { type: Boolean, required: true },  // Made optional
   agreePrivacy: { type: Boolean, required: true } // Made optional
 });

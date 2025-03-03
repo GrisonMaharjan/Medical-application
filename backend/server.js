@@ -77,29 +77,74 @@ app.post("/register", async (req, res) => {
 });
 
 // 🔹 Login Route
+// app.post("/login", async (req, res) => {
+//   try {
+//     const { email, password, role } = req.body;
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({ message: "User not found!" });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: "Invalid credentials!" });
+//     }
+
+//     // ✅ Generate JWT Token
+//     const token = jwt.sign({ userId: user._id}, SECRET_KEY, { expiresIn: "1h" });
+
+//     res.json({ message: "Login successful!", token });
+
+//   } catch (error) {
+//     console.error("Error in /login:", error);
+//     res.status(500).json({ message: "Server error during login" });
+//   }
+// });
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
 
+    // Check if user exists
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User not found!" });
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials!" });
     }
 
-    // ✅ Generate JWT Token
-    const token = jwt.sign({ userId: user._id}, SECRET_KEY, { expiresIn: "1h" });
+    // Generate JWT Token
+    const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: "1h" });
 
-    res.json({ message: "Login successful!", token });
-
+    res.json({ message: "Login successful!", token, role: user.role });
   } catch (error) {
     console.error("Error in /login:", error);
     res.status(500).json({ message: "Server error during login" });
   }
+});
+
+
+
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) return res.status(403).json({ message: "No token provided" });
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) return res.status(401).json({ message: "Unauthorized!" });
+
+    req.user = decoded;
+    next();
+  });
+};
+
+// 🔹 PROTECTED DASHBOARD ROUTE
+app.get("/dashboard", verifyToken, (req, res) => {
+  res.json({ user: req.user }); // Send user details
 });
 
 // 🔹 Protected Dashboard Route

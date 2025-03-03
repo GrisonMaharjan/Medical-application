@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react";
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import {
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import useAuth from "@/utils/middleware";
 
 // Mock data for recent patients
 const recentPatients = [
@@ -90,6 +92,7 @@ const recentActivities = [
 ]
 
 export default function AdminDashboard() {
+  const { loading } = useAuth(["admin"]); // ✅ Allow only "admin"
   const [user, setUser] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [message, setMessage] = useState("");
@@ -135,6 +138,9 @@ export default function AdminDashboard() {
       .catch(() => router.push("/medical-login"));
   }, []);
 
+
+
+  if (loading) return <p>Loading...</p>
   return (
     <div className="flex h-screen bg-background">
       {/* Mobile sidebar backdrop */}

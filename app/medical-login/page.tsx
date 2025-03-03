@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import type React from "react"
 
@@ -19,44 +19,61 @@ export default function MedicalLogin() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault()
+  //   setError("")
 
-    console.log("Submitting Login..."); // Debugging log
-    if (!email || !password) {
-      setError("Please enter both email and password")
-      return
-    }
+  //   console.log("Submitting Login..."); // Debugging log
+  //   if (!email || !password) {
+  //     setError("Please enter both email and password")
+  //     return
+  //   }
 
-    setIsLoading(true)
+  //   setIsLoading(true)
 
-    // Simulate authentication - replace with actual auth logic
-    try {
-      const res = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  //   // Simulate authentication - replace with actual auth logic
+  //   try {
+  //     console.log("Sign in button clicked");
 
-      console.log("Response received:", res);
+  //     const res = await fetch("http://localhost:5000/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
 
-      const data = await res.json();
+  //     console.log("Response received:", res);
 
-      console.log("Response Data:", data);
+  //     const data = await res.json();
 
-      if (res.ok) {
-        localStorage.setItem("token", data.token);
+  //     console.log("Response Data:", data);
 
-        router.push("/patient-dashboard");
-    } else {
-      setError(data.message || "Login failed!");
-    }
-  } catch (err) {
-    console.error("Fetch error:", err);
-    setError("Server error. Try again later!");
-  }
-  };
+  //     if (res.ok && data.toekn) {
+  //       console.log("Received Token:", data.token); 
+  //       localStorage.setItem("token", data.token);
+  //       console.log("Stored Token:", localStorage.getItem("token")); // 🔍 Check if stored correctly
+  //       router.push("/patient-dashboard");
+
+  //     // ✅ Redirect based on role
+  //     // if (data.role === "admin") {
+  //     //   console.log("Redirecting to admin-dashboard");
+  //     //   router.push("/admin-dashboard");
+  //     // } else if (data.role === "doctor") {
+  //     //     console.log("Redirecting to doctor-dashboard");
+  //     //     router.push("/doctor-dashboard");
+  //     // } else {
+  //     //     console.log("Redirecting to patient-dashboard");
+  //     //     router.push("/patient-dashboard");
+  //     // }
+  //     } else {
+  //       setError(data.message || "Login failed!");
+  //     }
+  //     } catch (err) {
+  //       console.error("Fetch error:", err);
+  //       setError("Server error. Try again later!");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  // };
 
 
   // const handleLogin = async (e: React.FormEvent) => {
@@ -101,7 +118,76 @@ export default function MedicalLogin() {
   //     router.push("/dashboard"); // Redirect to dashboard
   //   }
   // };
-
+  // const handleLogin = async (e:React.FormEvent) => {
+  //   e.preventDefault();
+  
+  //   try {
+  //     console.log("Login button clicked");
+  
+  //     const response = await fetch("http://localhost:5000/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+  
+  //     const data = await response.json();
+  //     console.log("Response Data:", data);
+  
+  //     if (response.ok && data.token) {
+  //       console.log("Received Token:", data.token); 
+  
+  //       localStorage.setItem("token", data.token);
+  //       console.log("Stored Token:", localStorage.getItem("token")); // 🔍 Check if stored correctly
+  
+  //       window.location.href = "/patient-dashboard"; // Redirect manually
+  //     } else {
+  //       console.error("Login failed:", data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error logging in:", error);
+  //   }
+  // };
+  
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Submitting Login...");
+  
+    try {
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+      console.log("Response Data:", data);
+  
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role); // Store role in localStorage
+  
+        console.log("Login Successful! Redirecting...");
+  
+        // Redirect based on role
+        if (data.role === "patient") {
+          router.push("/patient-dashboard");
+        } else if (data.role === "admin") {
+          router.push("/admin-dashboard");
+        } else if (data.role === "doctor") {
+          router.push("/doctor-dashboard");
+        } else {
+          console.error("Unknown role:", data.role);
+        }
+      } else {
+        console.error("Login Failed:", data.message);
+        setError(data.message);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setError("Something went wrong!");
+    }
+  };
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="w-full max-w-md">
@@ -134,7 +220,7 @@ export default function MedicalLogin() {
                     <Input
                       id="email"
                       type="text"
-                      placeholder="doctor@example.com"
+                      placeholder="name@example.com"
                       className="pl-10"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}

@@ -19,33 +19,19 @@ export default function MedicalLogin() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter();
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   setError("")
-
-  //   if (!email || !password) {
-  //     setError("Please enter both email and password")
-  //     return
-  //   }
-
-  //   setIsLoading(true)
-
-  //   // Simulate authentication - replace with actual auth logic
-  //   try {
-  //     // await authenticateUser(email, password)
-  //     console.log("Logging in with:", email, password)
-  //     // Redirect to dashboard after successful login
-  //     // router.push('/dashboard')
-  //   } catch (err) {
-  //     setError("Invalid email or password")
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }
-
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    setError("")
 
+    console.log("Submitting Login..."); // Debugging log
+    if (!email || !password) {
+      setError("Please enter both email and password")
+      return
+    }
+
+    setIsLoading(true)
+
+    // Simulate authentication - replace with actual auth logic
     try {
       const res = await fetch("http://localhost:5000/login", {
         method: "POST",
@@ -53,18 +39,48 @@ export default function MedicalLogin() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log("Response received:", res);
+
       const data = await res.json();
 
+      console.log("Response Data:", data);
+
       if (res.ok) {
-        localStorage.setItem("token", data.token);  // Store token
-        router.push("/admin-dashboard");  // Redirect to dashboard
-      } else {
-        setError(data.message || "Login failed!");
-      }
-    } catch (err) {
-      setError("Server error. Try again later!");
+        localStorage.setItem("token", data.token);
+
+        router.push("/patient-dashboard");
+    } else {
+      setError(data.message || "Login failed!");
     }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    setError("Server error. Try again later!");
+  }
   };
+
+
+  // const handleLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const res = await fetch("http://localhost:5000/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (res.ok) {
+  //       localStorage.setItem("token", data.token);  // Store token
+  //       router.push("/admin-dashboard");  // Redirect to dashboard
+  //     } else {
+  //       setError(data.message || "Login failed!");
+  //     }
+  //   } catch (err) {
+  //     setError("Server error. Try again later!");
+  //   }
+  // };
 
 
   // const handleSubmit = async (e: React.FormEvent) => {
@@ -156,7 +172,7 @@ export default function MedicalLogin() {
                     Remember me
                   </label>
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading} onClick={() => console.log("Login button clicked")}>
                   {isLoading ? "Signing in..." : "Sign in"}
                 </Button>
               </div>

@@ -77,7 +77,7 @@ app.post("/register", async (req, res) => {
 });
 
 // 🔹 Login Route
-app.post("/medical-dashboard", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -92,7 +92,7 @@ app.post("/medical-dashboard", async (req, res) => {
     }
 
     // ✅ Generate JWT Token
-    const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user._id}, SECRET_KEY, { expiresIn: "1h" });
 
     res.json({ message: "Login successful!", token });
 
@@ -103,17 +103,17 @@ app.post("/medical-dashboard", async (req, res) => {
 });
 
 // 🔹 Protected Dashboard Route
-app.get("/dashboard", (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1]; // Extract token after "Bearer "
-  if (!token) return res.status(401).json({ message: "Unauthorized!" });
+// app.get("/login", (req, res) => {
+//   const token = req.headers.authorization?.split(" ")[1]; // Extract token after "Bearer "
+//   if (!token) return res.status(401).json({ message: "Unauthorized!" });
 
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    res.json({ message: "Welcome to the Dashboard!", userId: decoded.userId });
-  } catch (error) {
-    res.status(401).json({ message: "Invalid token!" });
-  }
-});
+//   try {
+//     const decoded = jwt.verify(token, SECRET_KEY);
+//     res.json({ message: "Welcome to the Dashboard!", userId: decoded.userId });
+//   } catch (error) {
+//     res.status(401).json({ message: "Invalid token!" });
+//   }
+// });
 
 // 🔹 Root Route
 app.get("/", (req, res) => {

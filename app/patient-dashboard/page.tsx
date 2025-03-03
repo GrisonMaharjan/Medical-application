@@ -1,0 +1,410 @@
+"use client"
+
+import { useState } from "react"
+import {
+  Activity,
+  Bell,
+  Calendar,
+  FileText,
+  Droplets,
+  Heart,
+  Home,
+  Menu,
+  MessageSquare,
+  PillIcon as Pills,
+  Settings,
+  X,
+  Scale,
+  Plus,
+  Minus,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+export default function PatientDashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [date, setDate] = useState<Date>()
+  const [waterIntake, setWaterIntake] = useState(0)
+  const [height, setHeight] = useState("")
+  const [weight, setWeight] = useState("")
+  const [bmi, setBmi] = useState<number | null>(null)
+
+  // Calculate BMI
+  const calculateBMI = () => {
+    const heightInM = Number.parseFloat(height) / 100
+    const weightInKg = Number.parseFloat(weight)
+
+    if (heightInM > 0 && weightInKg > 0) {
+      const bmiValue = weightInKg / (heightInM * heightInM)
+      setBmi(Number.parseFloat(bmiValue.toFixed(1)))
+    }
+  }
+
+  // Get BMI category
+  const getBMICategory = (bmi: number) => {
+    if (bmi < 18.5) return { category: "Underweight", color: "text-blue-500" }
+    if (bmi < 25) return { category: "Normal", color: "text-green-500" }
+    if (bmi < 30) return { category: "Overweight", color: "text-yellow-500" }
+    return { category: "Obese", color: "text-red-500" }
+  }
+
+  // Handle water intake
+  const updateWaterIntake = (action: "add" | "subtract") => {
+    if (action === "add" && waterIntake < 8) {
+      setWaterIntake((prev) => prev + 1)
+    } else if (action === "subtract" && waterIntake > 0) {
+      setWaterIntake((prev) => prev - 1)
+    }
+  }
+
+  return (
+    <div className="flex h-screen bg-background">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-border transform transition-transform duration-200 ease-in-out md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:z-0`}
+      >
+        <div className="flex items-center justify-between h-16 px-4 border-b">
+          <div className="flex items-center">
+            <Heart className="h-6 w-6 text-primary" />
+            <span className="ml-2 text-lg font-semibold">HealthCare</span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="md:hidden">
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+        <div className="flex flex-col gap-1 p-4">
+          <Button variant="ghost" className="justify-start">
+            <Home className="mr-3 h-5 w-5" />
+            Dashboard
+          </Button>
+          <Button variant="ghost" className="justify-start text-muted-foreground">
+            <Calendar className="mr-3 h-5 w-5" />
+            Appointments
+          </Button>
+          <Button variant="ghost" className="justify-start text-muted-foreground">
+            <FileText className="mr-3 h-5 w-5" />
+            Medical Records
+          </Button>
+          <Button variant="ghost" className="justify-start text-muted-foreground">
+            <Activity className="mr-3 h-5 w-5" />
+            Health Metrics
+          </Button>
+          <Button variant="ghost" className="justify-start text-muted-foreground">
+            <MessageSquare className="mr-3 h-5 w-5" />
+            Messages
+          </Button>
+          <Button variant="ghost" className="justify-start text-muted-foreground">
+            <Settings className="mr-3 h-5 w-5" />
+            Settings
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="h-16 border-b bg-white flex items-center justify-between px-4 md:px-6">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="md:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
+                2
+              </span>
+            </Button>
+            <Avatar>
+              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Patient Name" />
+              <AvatarFallback>JD</AvatarFallback>
+            </Avatar>
+          </div>
+        </header>
+
+        {/* Main content area */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/30">
+          <div className="max-w-6xl mx-auto space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Welcome back, John</h1>
+              <p className="text-muted-foreground">Monitor your health and manage your appointments</p>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Card className="cursor-pointer hover:bg-accent transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">Book Appointment</CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground">Schedule your next visit</p>
+                    </CardContent>
+                  </Card>
+                </SheetTrigger>
+                <SheetContent className="sm:max-w-[425px]">
+                  <SheetHeader>
+                    <SheetTitle>Book an Appointment</SheetTitle>
+                    <SheetDescription>Select a date and time for your appointment</SheetDescription>
+                  </SheetHeader>
+                  <div className="py-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label>Appointment Type</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="general">General Checkup</SelectItem>
+                          <SelectItem value="specialist">Specialist Consultation</SelectItem>
+                          <SelectItem value="followup">Follow-up Visit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Select Date</Label>
+                      <CalendarComponent
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        className="rounded-md border"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Preferred Time</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="morning">Morning (9:00 - 12:00)</SelectItem>
+                          <SelectItem value="afternoon">Afternoon (13:00 - 16:00)</SelectItem>
+                          <SelectItem value="evening">Evening (17:00 - 19:00)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button className="w-full">Confirm Booking</Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Next Appointment</CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <p className="font-medium">Dr. Smith</p>
+                  <p className="text-xs text-muted-foreground">Tomorrow at 10:00 AM</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Medications</CardTitle>
+                  <Pills className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <p className="font-medium">2 medications due</p>
+                  <p className="text-xs text-muted-foreground">Next dose in 2 hours</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Messages</CardTitle>
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <p className="font-medium">2 unread</p>
+                  <p className="text-xs text-muted-foreground">From your healthcare team</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Health Metrics */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Water Intake Tracker */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Droplets className="h-5 w-5 text-blue-500" />
+                    Water Intake
+                  </CardTitle>
+                  <CardDescription>Track your daily water consumption</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => updateWaterIntake("subtract")}
+                      disabled={waterIntake === 0}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <div className="flex flex-col items-center">
+                      <div className="text-3xl font-bold text-blue-500">{waterIntake}</div>
+                      <div className="text-sm text-muted-foreground">of 8 glasses</div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => updateWaterIntake("add")}
+                      disabled={waterIntake === 8}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Progress value={(waterIntake / 8) * 100} className="h-2" />
+                </CardContent>
+              </Card>
+
+              {/* BMI Calculator */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Scale className="h-5 w-5 text-primary" />
+                    BMI Calculator
+                  </CardTitle>
+                  <CardDescription>Calculate and track your BMI</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="height">Height (cm)</Label>
+                      <Input
+                        id="height"
+                        type="number"
+                        placeholder="175"
+                        value={height}
+                        onChange={(e) => setHeight(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Weight (kg)</Label>
+                      <Input
+                        id="weight"
+                        type="number"
+                        placeholder="70"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={calculateBMI} className="w-full">
+                    Calculate BMI
+                  </Button>
+                  {bmi && (
+                    <div className="text-center space-y-1">
+                      <div className="text-2xl font-bold">{bmi}</div>
+                      <div className={`text-sm font-medium ${getBMICategory(bmi).color}`}>
+                        {getBMICategory(bmi).category}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Medical Records */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Medical Records</CardTitle>
+                <CardDescription>View your recent medical history</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Doctor</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Jun 12, 2023</TableCell>
+                      <TableCell>Annual Checkup</TableCell>
+                      <TableCell>Dr. Smith</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Completed
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>May 03, 2023</TableCell>
+                      <TableCell>Blood Test</TableCell>
+                      <TableCell>Dr. Johnson</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Completed
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Apr 15, 2023</TableCell>
+                      <TableCell>X-Ray</TableCell>
+                      <TableCell>Dr. Williams</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Completed
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">
+                  View All Records
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
+

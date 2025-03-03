@@ -38,10 +38,13 @@ import useAuth from "@/utils/middleware";
 
 export default function MedicalDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { loading } = useAuth(["doctor"]); // Only doctor can access
+  
+  console.log("MedicalDashboard Rendered");
+  console.log("Sidebar State:", sidebarOpen);
+  console.log("User Loading:", loading);
 
-  const loading = useAuth(["doctor"]); // Only doctor can access
-
-  if (loading) return <p>Loading...</p> ;
+  if (loading) return <p>Loading...</p>;
   return (
     <div className="flex h-screen bg-background">
       {/* Mobile sidebar backdrop */}

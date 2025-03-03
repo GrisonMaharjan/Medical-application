@@ -77,30 +77,6 @@ app.post("/register", async (req, res) => {
 });
 
 // 🔹 Login Route
-// app.post("/login", async (req, res) => {
-//   try {
-//     const { email, password, role } = req.body;
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(400).json({ message: "User not found!" });
-//     }
-
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ message: "Invalid credentials!" });
-//     }
-
-//     // ✅ Generate JWT Token
-//     const token = jwt.sign({ userId: user._id}, SECRET_KEY, { expiresIn: "1h" });
-
-//     res.json({ message: "Login successful!", token });
-
-//   } catch (error) {
-//     console.error("Error in /login:", error);
-//     res.status(500).json({ message: "Server error during login" });
-//   }
-// });
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;

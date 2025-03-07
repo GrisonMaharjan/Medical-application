@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation";
 import {
   Activity,
   Bell,
@@ -29,10 +30,42 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import useAuth from "@/utils/middleware";
+import axios from 'axios';
+
+interface UserType {
+  firstName: String;
+  lastName: String;
+  email: String;
+  phoneNumber: String;
+  dateOfBirth: String;
+  gender: String;
+  address: String;
+  city: String;
+  state: String;
+  knownAllergies: String;
+  currentMedication: String;
+  medicalConditions: String;
+  emergencyContactName: String;
+  emergencyContactNumber: String;
+  password: String;
+  role: String;
+  agreeTos: Boolean; 
+  agreePrivacy: Boolean; 
+}
 
 export default function PatientDashboard() {
-  const {user, loading} = useAuth(["patient"]); // Only patient can access
+  const router = useRouter();
+  const [user, setUser] = useState<UserType | null>(null);
+  const { loading} = useAuth(["patient"]); // Only patient can access
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [date, setDate] = useState<Date>()
   const [waterIntake, setWaterIntake] = useState(0)
@@ -40,6 +73,30 @@ export default function PatientDashboard() {
   const [weight, setWeight] = useState("")
   const [bmi, setBmi] = useState<number | null>(null)
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/getUsers")
+      .then((response) => {
+        if (response.data.length > 0) {
+          const doctorUser = response.data.find((u: UserType) => u.role === "patient") || null;
+          setUser(doctorUser);
+        }
+      })
+      .catch((err) => console.log("Error fetching users:", err));
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/getUsers")
+      .then((response) => {
+        if (response.data.length > 0) {
+          const doctorUser = response.data.find((u: UserType) => u.role === "doctor") || null;
+          setUser(doctorUser);
+        }
+      })
+      .catch((err) => console.log("Error fetching users:", err));
+  }, []);
+  
   // Calculate BMI
   const calculateBMI = () => {
     const heightInM = Number.parseFloat(height) / 100
@@ -67,6 +124,20 @@ export default function PatientDashboard() {
       setWaterIntake((prev) => prev - 1)
     }
   }
+
+  useEffect(() => {
+        const token = localStorage.getItem("token");
+  
+        if (!token) {
+            router.push("/medical-login"); // Redirect if no token
+        } 
+    }, [router]);
+  
+    // Logout function
+    const handleLogout = () => {
+        localStorage.removeItem("token"); // Clear JWT token
+        router.push("/medical-login"); // Redirect to login page
+    };
 
   if (loading) return <p>Loading...</p>
   
@@ -139,6 +210,25 @@ export default function PatientDashboard() {
                 2
               </span>
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Admin" />
+                    <AvatarFallback>AD</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Help</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Avatar>
               <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Patient Name" />
               <AvatarFallback>JD</AvatarFallback>
@@ -150,7 +240,7 @@ export default function PatientDashboard() {
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/30">
           <div className="max-w-6xl mx-auto space-y-6">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Welcome back, John</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Welcome back, {user?.firstName ?? "Guest"} </h1>
               <p className="text-muted-foreground">Monitor your health and manage your appointments</p>
             </div>
 
@@ -220,7 +310,7 @@ export default function PatientDashboard() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="font-medium">Dr. Smith</p>
+                  <p className="font-medium">Dr. {user?.firstName?? "Guest"} {user?.lastName ?? ""}</p>
                   <p className="text-xs text-muted-foreground">Tomorrow at 10:00 AM</p>
                 </CardContent>
               </Card>

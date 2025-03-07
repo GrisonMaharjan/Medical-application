@@ -2,7 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Bell,
   Calendar,
@@ -35,11 +35,60 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Progress } from "@/components/ui/progress"
 import useAuth from "@/utils/middleware";
+import { useRouter } from "next/navigation";
+import axios from 'axios';
+
+interface UserType {
+  firstName: String;
+  lastName: String;
+  email: String;
+  phoneNumber: String;
+  dateOfBirth: String;
+  gender: String;
+  address: String;
+  city: String;
+  state: String;
+  knownAllergies: String;
+  currentMedication: String;
+  medicalConditions: String;
+  emergencyContactName: String;
+  emergencyContactNumber: String;
+  password: String;
+  role: String;
+  agreeTos: Boolean; 
+  agreePrivacy: Boolean; 
+}
 
 export default function MedicalDashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState<UserType | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { loading } = useAuth(["doctor"]); // Only doctor can access
   
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Clear JWT token
+    router.push("/medical-login"); // Redirect to login page
+};
+
+useEffect(() => {
+  axios
+    .get("http://localhost:5000/getUsers")
+    .then((response) => {
+      if (response.data.length > 0) {
+        const doctorUser = response.data.find((u: UserType) => u.role === "doctor") || null;
+        setUser(doctorUser);
+      }
+    })
+    .catch((err) => console.log("Error fetching users:", err));
+}, []);
+
+  // useEffect(() => {
+  //   axios.get('http://localhost:5000/getUsers')  
+  //   .then(user => setUser(user.data))
+  //   .catch(err => console.log(err))
+  // })
+
   console.log("MedicalDashboard Rendered");
   console.log("Sidebar State:", sidebarOpen);
   console.log("User Loading:", loading);
@@ -109,7 +158,7 @@ export default function MedicalDashboard() {
               <AvatarFallback>DS</AvatarFallback>
             </Avatar>
             <div className="ml-3">
-              <p className="text-sm font-medium">Dr. Smith</p>
+              <p className="text-sm font-medium"> Dr. {user?.firstName ?? "Guest"} {user?.lastName ?? ""}</p>
               <p className="text-xs text-muted-foreground">Cardiologist</p>
             </div>
             <Button variant="ghost" size="icon" className="ml-auto">
@@ -159,7 +208,7 @@ export default function MedicalDashboard() {
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Help</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -170,7 +219,7 @@ export default function MedicalDashboard() {
           <div className="space-y-6">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back, Dr. Smith</p>
+              <p className="text-muted-foreground">Welcome back, {user?.firstName ?? "Guest"} {user?.lastName ?? ""}  </p>
             </div>
 
             {/* Stats overview */}
@@ -576,4 +625,3 @@ export default function MedicalDashboard() {
     </div>
   )
 }
-

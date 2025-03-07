@@ -138,7 +138,19 @@ export default function AdminDashboard() {
       .catch(() => router.push("/medical-login"));
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
+    if (!token) {
+        router.push("/medical-login"); // Redirect if no token
+    } 
+}, [router]);
+
+// Logout function
+const handleLogout = () => {
+    localStorage.removeItem("token"); // Clear JWT token
+    router.push("/medical-login"); // Redirect to login page
+};
 
   if (loading) return <p>Loading...</p>
   return (
@@ -212,7 +224,7 @@ export default function AdminDashboard() {
             </Button>
             <div className="ml-4 md:ml-0">
               <h2 className="font-semibold">Admin Dashboard</h2>
-              <p className="text-sm text-muted-foreground">Welcome back, Admin</p>
+              <p className="text-sm text-muted-foreground">Welcome back, Admin </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -238,7 +250,7 @@ export default function AdminDashboard() {
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Help</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

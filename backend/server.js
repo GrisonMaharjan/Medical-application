@@ -22,9 +22,9 @@ mongoose
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-mongoose.connection.on("error", (err) => {
-  console.error("MongoDB Connection Error:", err);
-});
+// mongoose.connection.on("error", (err) => {
+//   console.error("MongoDB Connection Error:", err);
+// });
 
 // 🔹 Secret Key for JWT
 const SECRET_KEY = process.env.SECRET_KEY || "your_secret_key";
@@ -103,8 +103,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization;
 
@@ -140,6 +138,12 @@ app.get("/dashboard", verifyToken, (req, res) => {
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
+
+app.get ('/getUsers', (req, res) => {
+  User.find()
+  .then(user => res.json(user))
+  .catch(err => res.json(err))
+})
 
 // 🔹 Start Server
 const PORT = process.env.PORT || 5000;

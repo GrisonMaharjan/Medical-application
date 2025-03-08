@@ -192,22 +192,6 @@ const handleLogout = () => {
             Appointments
           </Button>
           <Button variant="ghost" className="justify-start text-muted-foreground">
-            <FileText className="mr-3 h-5 w-5" />
-            Documents
-          </Button>
-          <Button variant="ghost" className="justify-start text-muted-foreground">
-            <MessageSquare className="mr-3 h-5 w-5" />
-            Messages
-          </Button>
-          <Button variant="ghost" className="justify-start text-muted-foreground">
-            <PieChart className="mr-3 h-5 w-5" />
-            Analytics
-          </Button>
-          <Button variant="ghost" className="justify-start text-muted-foreground">
-            <CreditCard className="mr-3 h-5 w-5" />
-            Billing
-          </Button>
-          <Button variant="ghost" className="justify-start text-muted-foreground">
             <Settings className="mr-3 h-5 w-5" />
             Settings
           </Button>
@@ -281,7 +265,7 @@ const handleLogout = () => {
                   <p className="text-xs text-muted-foreground">6 pending confirmations</p>
                 </CardContent>
               </Card>
-              <Card>
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Active Staff</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
@@ -290,8 +274,8 @@ const handleLogout = () => {
                   <div className="text-2xl font-bold">15</div>
                   <p className="text-xs text-muted-foreground">3 on leave today</p>
                 </CardContent>
-              </Card>
-              <Card>
+              </Card> */}
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Revenue</CardTitle>
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -300,7 +284,7 @@ const handleLogout = () => {
                   <div className="text-2xl font-bold">$12,345</div>
                   <p className="text-xs text-muted-foreground">+8% from last month</p>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
 
             {/* Recent Patients and Activity */}
@@ -426,17 +410,13 @@ const handleLogout = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-3">
-                  <Button className="h-auto py-4 flex flex-col items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    <span>Add New Patient</span>
-                  </Button>
                   <Button className="h-auto py-4 flex flex-col items-center gap-2" variant="outline">
                     <Calendar className="h-5 w-5" />
                     <span>Schedule Appointment</span>
                   </Button>
-                  <Button className="h-auto py-4 flex flex-col items-center gap-2" variant="outline">
-                    <FileText className="h-5 w-5" />
-                    <span>Generate Report</span>
+                  <Button className="h-auto py-4 flex flex-col items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    <span>Add New Patient</span>
                   </Button>
                 </div>
               </CardContent>
@@ -462,7 +442,7 @@ const handleLogout = () => {
                       <SelectContent>
                         <SelectItem value="all">All Roles</SelectItem>
                         <SelectItem value="doctor">Doctors</SelectItem>
-                        <SelectItem value="nurse">Nurses</SelectItem>
+                        <SelectItem value="nurse">Patient</SelectItem>
                         <SelectItem value="admin">Admin Staff</SelectItem>
                       </SelectContent>
                     </Select>
@@ -474,7 +454,6 @@ const handleLogout = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead>Department</TableHead>
-                        <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -494,11 +473,6 @@ const handleLogout = () => {
                         </TableCell>
                         <TableCell>Doctor</TableCell>
                         <TableCell>Cardiology</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                            Active
-                          </Badge>
-                        </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

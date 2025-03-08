@@ -37,6 +37,7 @@ import { Progress } from "@/components/ui/progress"
 import useAuth from "@/utils/middleware";
 import { useRouter } from "next/navigation";
 import axios from 'axios';
+import DoctorNotifications from "../doctor-notifications/page"
 
 interface UserType {
   firstName: String;
@@ -134,18 +135,6 @@ useEffect(() => {
               Appointments
             </Button>
             <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-              <FileText className="mr-3 h-5 w-5" />
-              Medical Records
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-              <MessageSquare className="mr-3 h-5 w-5" />
-              Messages
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-              <ClipboardList className="mr-3 h-5 w-5" />
-              Tasks
-            </Button>
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground">
               <Settings className="mr-3 h-5 w-5" />
               Settings
             </Button>
@@ -186,12 +175,13 @@ useEffect(() => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" className="relative">
+            {/* <Button variant="outline" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
                 3
               </span>
-            </Button>
+            </Button> */}
+            <DoctorNotifications/>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -244,7 +234,7 @@ useEffect(() => {
                   <p className="text-xs text-muted-foreground">3 remaining for today</p>
                 </CardContent>
               </Card>
-              <Card>
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Pending Reports</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
@@ -253,8 +243,8 @@ useEffect(() => {
                   <div className="text-2xl font-bold">7</div>
                   <p className="text-xs text-muted-foreground">2 urgent reports</p>
                 </CardContent>
-              </Card>
-              <Card>
+              </Card> */}
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">New Messages</CardTitle>
                   <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -263,7 +253,7 @@ useEffect(() => {
                   <div className="text-2xl font-bold">18</div>
                   <p className="text-xs text-muted-foreground">5 unread messages</p>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
 
             {/* Tabs for different sections */}
@@ -271,7 +261,7 @@ useEffect(() => {
               <TabsList>
                 <TabsTrigger value="appointments">Today's Appointments</TabsTrigger>
                 <TabsTrigger value="patients">Recent Patients</TabsTrigger>
-                <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                {/* <TabsTrigger value="tasks">Tasks</TabsTrigger> */}
               </TabsList>
 
               {/* Appointments Tab */}
@@ -435,7 +425,7 @@ useEffect(() => {
               </TabsContent>
 
               {/* Tasks Tab */}
-              <TabsContent value="tasks" className="space-y-4">
+              {/* <TabsContent value="tasks" className="space-y-4">
                 <Card>
                   <CardHeader>
                     <CardTitle>Tasks</CardTitle>
@@ -514,11 +504,11 @@ useEffect(() => {
                     </Button>
                   </CardFooter>
                 </Card>
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
 
             {/* Patient Health Metrics */}
-            <div className="grid gap-4 md:grid-cols-2">
+            {/* <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Patient Health Metrics</CardTitle>
@@ -618,7 +608,7 @@ useEffect(() => {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
           </div>
         </main>
       </div>

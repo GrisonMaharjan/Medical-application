@@ -42,6 +42,7 @@ import useAuth from "@/utils/middleware";
 import axios from 'axios';
 
 interface UserType {
+  _id: String;
   firstName: String;
   lastName: String;
   email: String;
@@ -62,9 +63,17 @@ interface UserType {
   agreePrivacy: Boolean; 
 }
 
+type AppointmentType = {
+  doctorFirstName: string;
+  doctorLastName: string;
+  date: string;
+  time: string;
+};
+
 export default function PatientDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<UserType | null>(null);
+  const [patientUser, setPatientUser] = useState<UserType | null>(null);
+  const [doctorUser, setDoctorUser] = useState<UserType | null>(null);
   const { loading} = useAuth(["patient"]); // Only patient can access
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [date, setDate] = useState<Date>()
@@ -72,14 +81,18 @@ export default function PatientDashboard() {
   const [height, setHeight] = useState("")
   const [weight, setWeight] = useState("")
   const [bmi, setBmi] = useState<number | null>(null)
+  const [appointmentType, setAppointmentType] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [time, setTime] = useState("");
+  const [appointment, setAppointment] = useState<AppointmentType | null>(null);
 
   useEffect(() => {
     axios
       .get("http://localhost:5000/getUsers")
       .then((response) => {
         if (response.data.length > 0) {
-          const doctorUser = response.data.find((u: UserType) => u.role === "patient") || null;
-          setUser(doctorUser);
+          const patientUser = response.data.find((u: UserType) => u.role === "patient") || null;
+          setPatientUser(patientUser);
         }
       })
       .catch((err) => console.log("Error fetching users:", err));
@@ -91,7 +104,7 @@ export default function PatientDashboard() {
       .then((response) => {
         if (response.data.length > 0) {
           const doctorUser = response.data.find((u: UserType) => u.role === "doctor") || null;
-          setUser(doctorUser);
+          setDoctorUser(doctorUser);
         }
       })
       .catch((err) => console.log("Error fetching users:", err));
@@ -139,6 +152,33 @@ export default function PatientDashboard() {
         router.push("/medical-login"); // Redirect to login page
     };
 
+    const handleSubmit = async () => {
+      if (!appointmentType || !selectedDoctor || !date || !time) {
+        alert("Please fill in all fields before booking.");
+        return;
+      }
+  
+      try {
+        const response = await axios.post("http://localhost:5000/book-appointment", {
+          // patientName: patientUser?.firstName,
+          patientId: patientUser?._id, // Assuming user is logged in
+          // doctorName: doctorUser?.firstName,
+          doctorId: doctorUser?._id,
+          appointmentType,
+          date,
+          time,
+        });
+  
+        if (response.status === 200) {
+          alert("Appointment booked successfully!");
+          window.location.reload(); // Refresh to update UI
+        }
+      } catch (error) {
+        console.error("Error booking appointment:", error);
+        alert("Failed to book appointment. Try again later.");
+      }
+    };
+  
   if (loading) return <p>Loading...</p>
   
   return (
@@ -178,14 +218,6 @@ export default function PatientDashboard() {
           <Button variant="ghost" className="justify-start text-muted-foreground">
             <FileText className="mr-3 h-5 w-5" />
             Medical Records
-          </Button>
-          <Button variant="ghost" className="justify-start text-muted-foreground">
-            <Activity className="mr-3 h-5 w-5" />
-            Health Metrics
-          </Button>
-          <Button variant="ghost" className="justify-start text-muted-foreground">
-            <MessageSquare className="mr-3 h-5 w-5" />
-            Messages
           </Button>
           <Button variant="ghost" className="justify-start text-muted-foreground">
             <Settings className="mr-3 h-5 w-5" />
@@ -229,10 +261,6 @@ export default function PatientDashboard() {
                 <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Avatar>
-              <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Patient Name" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
           </div>
         </header>
 
@@ -240,7 +268,7 @@ export default function PatientDashboard() {
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/30">
           <div className="max-w-6xl mx-auto space-y-6">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Welcome back, {user?.firstName ?? "Guest"} </h1>
+              <h1 className="text-2xl font-bold tracking-tight">Welcome back, {patientUser?.firstName ?? "Guest"} </h1>
               <p className="text-muted-foreground">Monitor your health and manage your appointments</p>
             </div>
 
@@ -258,7 +286,7 @@ export default function PatientDashboard() {
                     </CardContent>
                   </Card>
                 </SheetTrigger>
-                <SheetContent className="sm:max-w-[425px]">
+                <SheetContent className="sm:max-w-[425px] max-h-[100vh] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle>Book an Appointment</SheetTitle>
                     <SheetDescription>Select a date and time for your appointment</SheetDescription>
@@ -266,7 +294,7 @@ export default function PatientDashboard() {
                   <div className="py-4 space-y-4">
                     <div className="space-y-2">
                       <Label>Appointment Type</Label>
-                      <Select>
+                      <Select onValueChange={setAppointmentType}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -274,6 +302,19 @@ export default function PatientDashboard() {
                           <SelectItem value="general">General Checkup</SelectItem>
                           <SelectItem value="specialist">Specialist Consultation</SelectItem>
                           <SelectItem value="followup">Follow-up Visit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Choose Specalist</Label>
+                      <Select onValueChange={setSelectedDoctor}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="general">Dr. {doctorUser?.firstName}</SelectItem>
+                          <SelectItem value="specialist">Dr. {doctorUser?.firstName}</SelectItem>
+                          <SelectItem value="followup">Dr. {doctorUser?.firstName}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -288,7 +329,7 @@ export default function PatientDashboard() {
                     </div>
                     <div className="space-y-2">
                       <Label>Preferred Time</Label>
-                      <Select>
+                      <Select onValueChange={setTime}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select time" />
                         </SelectTrigger>
@@ -299,7 +340,7 @@ export default function PatientDashboard() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button className="w-full">Confirm Booking</Button>
+                    <Button className="w-full"  onClick={handleSubmit}>Confirm Booking</Button>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -310,12 +351,12 @@ export default function PatientDashboard() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="font-medium">Dr. {user?.firstName?? "Guest"} {user?.lastName ?? ""}</p>
+                  <p className="font-medium">Dr. {doctorUser?.firstName?? "Guest"} {doctorUser?.lastName ?? ""}</p>
                   <p className="text-xs text-muted-foreground">Tomorrow at 10:00 AM</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Medications</CardTitle>
                   <Pills className="h-4 w-4 text-muted-foreground" />
@@ -324,9 +365,9 @@ export default function PatientDashboard() {
                   <p className="font-medium">2 medications due</p>
                   <p className="text-xs text-muted-foreground">Next dose in 2 hours</p>
                 </CardContent>
-              </Card>
+              </Card> */}
 
-              <Card>
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Messages</CardTitle>
                   <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -335,7 +376,7 @@ export default function PatientDashboard() {
                   <p className="font-medium">2 unread</p>
                   <p className="text-xs text-muted-foreground">From your healthcare team</p>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
 
             {/* Health Metrics */}

@@ -8,6 +8,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const User = require("./models/User");
 const Appointment = require("./models/Appointment");
+const userRoutes = require ("./routes/users"); 
 
 const app = express();
 const server = http.createServer(app);
@@ -127,35 +128,6 @@ app.get('/getUsers', (req, res) => {
 // 🚀 APPOINTMENT BOOKING SYSTEM
 // =========================================
 
-// ✅ Book an Appointment
-// app.post("/api/appointments/book", async (req, res) => {
-//   try {
-//     const { patientId, doctorId, date, time, reason } = req.body;
-//     const newAppointment = new Appointment({ patientId, doctorId, date, time, reason });
-
-//     await newAppointment.save();
-
-//     // Notify doctor in real-time
-//     io.emit(`notifyDoctor_${doctorId}`, newAppointment);
-
-//     res.status(201).json({ message: "Appointment booked successfully!", appointment: newAppointment });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error });
-//   }
-// });
-
-// // ✅ Get Appointments for a Doctor
-// app.get("/api/appointments/doctor/:doctorId", async (req, res) => {
-//   try {
-//     const doctorId = req.params.doctorId;
-//     const appointments = await Appointment.find({ doctorId }).populate("patientId", "firstName lastName email");
-
-//     res.json(appointments);
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error", error });
-//   }
-// });
-
 app.post("/book-appointment", async (req, res) => {
   try {
     const { patientId, doctorId, appointmentType, date, time } = req.body;
@@ -201,6 +173,29 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
+
+// Getting appointment details 
+app.get("/api/appointments", async (req, res) => {
+  try {
+    const { patientId } = req.query;
+    if (!patientId) {
+      return res.status(400).json({ error: "Missing patientId" });
+    }
+
+    const appointments = await Appointment.find({ patientId }).sort({ date: 1 }).limit(1);
+
+    if (!appointments.length) {
+      return res.status(404).json({ error: "No appointments found" });
+    }
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ error: "Failed to fetch appointments" });
+  }
+});
+
+app.use("/api/users", userRoutes);
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;

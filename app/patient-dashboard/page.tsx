@@ -63,18 +63,22 @@ interface UserType {
   agreePrivacy: Boolean; 
 }
 
-type AppointmentType = {
-  doctorFirstName: string;
-  doctorLastName: string;
-  date: string;
-  time: string;
+interface AppointmentType {
+  patientId: String;
+    doctorId: String;
+    doctorName: String;
+    appointmentType: String;
+    date: String;
+    time: String;
+    status: String;
+    createdAt: String;
 };
 
 export default function PatientDashboard() {
   const router = useRouter();
   const [patientUser, setPatientUser] = useState<UserType | null>(null);
   const [doctorUser, setDoctorUser] = useState<UserType | null>(null);
-  const { loading} = useAuth(["patient"]); // Only patient can access
+  const { loading } = useAuth(["patient"]); // Only patient can access
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [date, setDate] = useState<Date>()
   const [waterIntake, setWaterIntake] = useState(0)
@@ -84,8 +88,11 @@ export default function PatientDashboard() {
   const [appointmentType, setAppointmentType] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [time, setTime] = useState("");
-  const [appointment, setAppointment] = useState<AppointmentType | null>(null);
+  const [appointment, setAppointment] = useState<AppointmentType | null>(null);;
+  const [error, setError] = useState("");
+  const [detailLoading, setDetailLoading] = useState(true);
 
+  // Getting details of the patient/user
   useEffect(() => {
     axios
       .get("http://localhost:5000/getUsers")
@@ -98,6 +105,7 @@ export default function PatientDashboard() {
       .catch((err) => console.log("Error fetching users:", err));
   }, []);
 
+  // Getting details of doctor
   useEffect(() => {
     axios
       .get("http://localhost:5000/getUsers")
@@ -109,7 +117,7 @@ export default function PatientDashboard() {
       })
       .catch((err) => console.log("Error fetching users:", err));
   }, []);
-  
+
   // Calculate BMI
   const calculateBMI = () => {
     const heightInM = Number.parseFloat(height) / 100
@@ -179,6 +187,28 @@ export default function PatientDashboard() {
       }
     };
   
+    useEffect(() => {
+      const fetchAppointment = async () => {
+        try {
+          const patientId = "67c55e8acce621b24aafdafe"; // Change this dynamically based on logged-in user
+          const response = await fetch(`http://localhost:5000/api/appointments?patientId=${patientId}`);
+  
+          if (!response.ok) {
+            throw new Error("Failed to fetch appointment");
+          }
+  
+          const data = await response.json();
+          setAppointment(data[0]); // Assuming only one appointment is returned
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setDetailLoading(false);
+        }
+      };
+  
+      fetchAppointment();
+    }, []);
+
   if (loading) return <p>Loading...</p>
   
   return (
@@ -345,7 +375,7 @@ export default function PatientDashboard() {
                 </SheetContent>
               </Sheet>
 
-              <Card>
+              {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Next Appointment</CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -354,7 +384,22 @@ export default function PatientDashboard() {
                   <p className="font-medium">Dr. {doctorUser?.firstName?? "Guest"} {doctorUser?.lastName ?? ""}</p>
                   <p className="text-xs text-muted-foreground">Tomorrow at 10:00 AM</p>
                 </CardContent>
-              </Card>
+              </Card> */}
+
+<Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Next Appointment</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <p className="font-medium">
+              Dr. {appointment?.doctorName ?? "Unknown Doctor"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {appointment?.date ?? "No appointment scheduled"}
+            </p>
+          </CardContent>
+        </Card>
 
               {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
